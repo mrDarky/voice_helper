@@ -19,7 +19,7 @@ from translator import TranslationService
 try:
     import pyttsx3
     TTS_AVAILABLE = True
-except:
+except ImportError:
     TTS_AVAILABLE = False
 
 class MainScreen(Screen):
