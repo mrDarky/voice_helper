@@ -1,0 +1,203 @@
+#:kivy 2.3.0
+
+<ModelsScreen>:
+    name: 'models'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+        
+        Label:
+            text: 'Whisper Model Management'
+            font_size: 24
+            size_hint_y: 0.1
+        
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.8
+            spacing: 10
+            
+            # Available models list
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.5
+                
+                Label:
+                    text: 'Available Models'
+                    size_hint_y: 0.1
+                    font_size: 18
+                
+                ScrollView:
+                    GridLayout:
+                        id: available_models
+                        cols: 1
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: 5
+            
+            # Downloaded models table
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.5
+                
+                Label:
+                    text: 'Downloaded Models'
+                    size_hint_y: 0.1
+                    font_size: 18
+                
+                ScrollView:
+                    GridLayout:
+                        id: downloaded_models
+                        cols: 1
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: 5
+        
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.1
+            spacing: 10
+            
+            Button:
+                text: 'Refresh'
+                on_press: root.refresh_models()
+            
+            Button:
+                text: 'Settings'
+                on_press: root.manager.current = 'settings'
+            
+            Button:
+                text: 'Main'
+                on_press: root.manager.current = 'main'
+
+<SettingsScreen>:
+    name: 'settings'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+        
+        Label:
+            text: 'Settings'
+            font_size: 24
+            size_hint_y: 0.1
+        
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 15
+                padding: 10
+                
+                # Trigger phrase
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: 80
+                    
+                    Label:
+                        text: 'Trigger Phrase'
+                        size_hint_y: 0.4
+                    
+                    TextInput:
+                        id: trigger_phrase
+                        multiline: False
+                        size_hint_y: 0.6
+                
+                # Translation API
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: 80
+                    
+                    Label:
+                        text: 'Translation API'
+                        size_hint_y: 0.4
+                    
+                    Spinner:
+                        id: translation_api
+                        text: 'google'
+                        values: ['google', 'deepl']
+                        size_hint_y: 0.6
+                
+                # Voice answer toggle
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: 50
+                    
+                    Label:
+                        text: 'Voice Answer'
+                        size_hint_x: 0.7
+                    
+                    CheckBox:
+                        id: voice_answer
+                        size_hint_x: 0.3
+        
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.1
+            spacing: 10
+            
+            Button:
+                text: 'Save'
+                on_press: root.save_settings()
+            
+            Button:
+                text: 'Back'
+                on_press: root.manager.current = 'main'
+
+<MainScreen>:
+    name: 'main'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+        
+        Label:
+            text: 'Voice Helper'
+            font_size: 32
+            size_hint_y: 0.15
+        
+        Label:
+            id: status_label
+            text: 'Status: Stopped'
+            font_size: 18
+            size_hint_y: 0.1
+        
+        Label:
+            id: active_model_label
+            text: 'Active Model: None'
+            font_size: 14
+            size_hint_y: 0.1
+        
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.1
+            spacing: 10
+            
+            Button:
+                id: start_button
+                text: 'Start Listening'
+                on_press: root.toggle_listening()
+                background_color: 0.2, 0.8, 0.2, 1
+            
+            Button:
+                text: 'Models'
+                on_press: root.manager.current = 'models'
+            
+            Button:
+                text: 'Settings'
+                on_press: root.manager.current = 'settings'
+        
+        ScrollView:
+            size_hint_y: 0.55
+            
+            Label:
+                id: log_label
+                text: 'Waiting to start...'
+                size_hint_y: None
+                height: self.texture_size[1]
+                text_size: self.width, None
+                markup: True
