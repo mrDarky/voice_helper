@@ -1,4 +1,9 @@
-from deep_translator import GoogleTranslator
+try:
+    from deep_translator import GoogleTranslator
+    TRANSLATOR_AVAILABLE = True
+except ImportError:
+    TRANSLATOR_AVAILABLE = False
+    
 import requests
 from database import Database
 
@@ -22,6 +27,8 @@ class TranslationService:
     
     def _translate_google(self, text, target_lang):
         """Translate using Google Translate (free)"""
+        if not TRANSLATOR_AVAILABLE:
+            return f"Translation not available - install deep-translator: pip install deep-translator"
         translator = GoogleTranslator(source='auto', target=target_lang)
         return translator.translate(text)
     

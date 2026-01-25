@@ -1,13 +1,28 @@
-import speech_recognition as sr
+try:
+    import speech_recognition as sr
+    SR_AVAILABLE = True
+except ImportError:
+    SR_AVAILABLE = False
+    
+try:
+    import whisper
+    WHISPER_AVAILABLE = True
+except ImportError:
+    WHISPER_AVAILABLE = False
+    
 import threading
 import time
-import whisper
 from database import Database
 
 class VoiceProcessor:
     def __init__(self):
-        self.recognizer = sr.Recognizer()
-        self.microphone = sr.Microphone()
+        if not SR_AVAILABLE:
+            print("Warning: SpeechRecognition not available")
+        if not WHISPER_AVAILABLE:
+            print("Warning: Whisper not available")
+            
+        self.recognizer = sr.Recognizer() if SR_AVAILABLE else None
+        self.microphone = sr.Microphone() if SR_AVAILABLE else None
         self.is_listening = False
         self.db = Database()
         self.whisper_model = None
@@ -17,6 +32,10 @@ class VoiceProcessor:
         
     def load_whisper_model(self):
         """Load the active Whisper model"""
+        if not WHISPER_AVAILABLE:
+            print("Error: Whisper not installed")
+            return False
+            
         active_model = self.db.get_active_model()
         if active_model:
             try:
@@ -29,6 +48,10 @@ class VoiceProcessor:
     
     def start_listening(self):
         """Start listening for trigger phrase"""
+        if not SR_AVAILABLE:
+            print("Error: SpeechRecognition not installed")
+            return
+            
         if self.is_listening:
             return
         
