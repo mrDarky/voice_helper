@@ -84,6 +84,10 @@ class MainScreen(Screen):
             self.show_popup('Error', 'Please select an active Whisper model first!')
             return
         
+        if not self.app.voice_processor.audio_available:
+            self.show_popup('Error', 'No audio input devices available.\n\nPlease check:\n1. Microphone is connected\n2. System audio permissions are granted\n3. Audio drivers are installed')
+            return
+        
         self.is_listening = True
         self.ids.start_button.text = 'Stop Listening'
         self.ids.start_button.background_color = (0.8, 0.2, 0.2, 1)
