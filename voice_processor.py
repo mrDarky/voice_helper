@@ -66,17 +66,21 @@ class VoiceProcessor:
     
     def _listen_loop(self):
         """Main listening loop"""
+        if not SR_AVAILABLE:
+            print("Error: SpeechRecognition not available")
+            return
+            
         trigger_phrase = self.db.get_setting('trigger_phrase').lower()
         
         # Create a new microphone instance for ambient noise adjustment
-        microphone = sr.Microphone() if SR_AVAILABLE else None
+        microphone = sr.Microphone()
         with microphone as source:
             self.recognizer.adjust_for_ambient_noise(source, duration=1)
         
         while self.is_listening:
             try:
                 # Create a new microphone instance for each listening iteration
-                microphone = sr.Microphone() if SR_AVAILABLE else None
+                microphone = sr.Microphone()
                 with microphone as source:
                     print("Listening for trigger phrase...")
                     audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=5)
@@ -103,9 +107,13 @@ class VoiceProcessor:
     
     def _listen_for_command(self):
         """Listen for actual command after trigger"""
+        if not SR_AVAILABLE:
+            print("Error: SpeechRecognition not available")
+            return
+            
         try:
             # Create a new microphone instance for command listening
-            microphone = sr.Microphone() if SR_AVAILABLE else None
+            microphone = sr.Microphone()
             with microphone as source:
                 print("Listening for command...")
                 audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=10)
@@ -121,9 +129,13 @@ class VoiceProcessor:
     
     def listen_once(self):
         """Listen for a single phrase (for translation input)"""
+        if not SR_AVAILABLE:
+            print("Error: SpeechRecognition not available")
+            return None
+            
         try:
             # Create a new microphone instance for single listening
-            microphone = sr.Microphone() if SR_AVAILABLE else None
+            microphone = sr.Microphone()
             with microphone as source:
                 self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
                 print("Listening...")
