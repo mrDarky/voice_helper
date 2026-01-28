@@ -1,20 +1,44 @@
-import os
-os.environ['KIVY_NO_CONSOLELOG'] = '1'
+import sys
 
-from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.popup import Popup
-from kivy.clock import Clock
-from kivy.core.window import Window
+# Check for critical dependencies first
+try:
+    from kivy.app import App
+    from kivy.uix.screenmanager import ScreenManager, Screen
+    from kivy.uix.boxlayout import BoxLayout
+    from kivy.uix.button import Button
+    from kivy.uix.label import Label
+    from kivy.uix.popup import Popup
+    from kivy.clock import Clock
+    from kivy.core.window import Window
+except ImportError as e:
+    print(f"\n{'='*60}")
+    print("ERROR: Missing required dependency")
+    print(f"{'='*60}")
+    print(f"Failed to import: {e}")
+    print("\nPlease install all dependencies:")
+    print("  pip install -r requirements.txt")
+    print("\nOr run the setup script:")
+    print("  ./setup.sh (Linux/macOS)")
+    print("  setup.bat (Windows)")
+    print(f"{'='*60}\n")
+    sys.exit(1)
+
 from datetime import datetime
 import threading
 
-from database import Database
-from voice_processor import VoiceProcessor
-from translator import TranslationService
+try:
+    from database import Database
+    from voice_processor import VoiceProcessor
+    from translator import TranslationService
+except ImportError as e:
+    print(f"\n{'='*60}")
+    print("ERROR: Failed to import application modules")
+    print(f"{'='*60}")
+    print(f"Error: {e}")
+    print("\nPlease ensure you're running from the correct directory")
+    print("and all project files are present.")
+    print(f"{'='*60}\n")
+    sys.exit(1)
 
 try:
     import pyttsx3
@@ -332,4 +356,18 @@ class VoiceHelperApp(App):
 
 
 if __name__ == '__main__':
-    VoiceHelperApp().run()
+    try:
+        VoiceHelperApp().run()
+    except Exception as e:
+        print(f"\n{'='*60}")
+        print("ERROR: Failed to start Voice Helper")
+        print(f"{'='*60}")
+        print(f"Error details: {e}")
+        print("\nPlease ensure all dependencies are installed:")
+        print("  pip install -r requirements.txt")
+        print("\nFor more information, see README.md")
+        print(f"{'='*60}\n")
+        import traceback
+        traceback.print_exc()
+        import sys
+        sys.exit(1)
