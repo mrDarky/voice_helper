@@ -1,13 +1,15 @@
 import sys
 import traceback
+from datetime import datetime
+import threading
 
-def print_error_message(title, details, suggestions):
+def print_error_message(title, details, suggestions=None):
     """Helper function to print formatted error messages"""
     print(f"\n{'='*60}")
     print(f"ERROR: {title}")
     print(f"{'='*60}")
     print(details)
-    if suggestions:
+    if suggestions is not None:
         print(f"\n{suggestions}")
     print(f"{'='*60}\n")
 
@@ -33,9 +35,6 @@ except ImportError as e:
         "  setup.bat (Windows)"
     )
     sys.exit(1)
-
-from datetime import datetime
-import threading
 
 try:
     from database import Database
@@ -371,11 +370,10 @@ if __name__ == '__main__':
     except Exception as e:
         print_error_message(
             "Failed to start Voice Helper",
-            f"Error details: {e}",
+            f"Error details: {e}\n\nFull traceback:\n{traceback.format_exc()}",
             "Please ensure all dependencies are installed:\n"
             "  pip install -r requirements.txt\n"
             "\n"
             "For more information, see README.md"
         )
-        traceback.print_exc()
         sys.exit(1)
