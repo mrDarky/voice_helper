@@ -41,28 +41,30 @@ class VoiceProcessor:
             import pyaudio
             p = pyaudio.PyAudio()
             
-            # Check if there are any input devices
-            device_count = p.get_device_count()
-            has_input_device = False
+            try:
+                # Check if there are any input devices
+                device_count = p.get_device_count()
+                has_input_device = False
+                
+                for i in range(device_count):
+                    try:
+                        device_info = p.get_device_info_by_index(i)
+                        if device_info.get('maxInputChannels', 0) > 0:
+                            has_input_device = True
+                            break
+                    except Exception:
+                        continue
+                
+                if not has_input_device:
+                    print("Warning: No audio input devices found")
+                    return False
+                
+                return True
+            finally:
+                # Always terminate PyAudio instance to avoid resource leaks
+                p.terminate()
             
-            for i in range(device_count):
-                try:
-                    device_info = p.get_device_info_by_index(i)
-                    if device_info.get('maxInputChannels', 0) > 0:
-                        has_input_device = True
-                        break
-                except Exception:
-                    continue
-            
-            p.terminate()
-            
-            if not has_input_device:
-                print("Warning: No audio input devices found")
-                return False
-            
-            return True
-            
-        except (OSError, ImportError, AssertionError) as e:
+        except (OSError, AssertionError) as e:
             print(f"Warning: Audio hardware not available: {e}")
             return False
         except Exception as e:
@@ -130,6 +132,11 @@ class VoiceProcessor:
         except Exception as e:
             print(f"Error initializing microphone: {e}")
             self.is_listening = False
+            if self.on_command_received:
+                # Notify that listening failed
+                import kivy.clock
+                kivy.clock.Clock.schedule_once(
+                    lambda dt: print("Listening stopped due to audio error"), 0)
             return
         
         while self.is_listening:
@@ -158,6 +165,7 @@ class VoiceProcessor:
                 continue
             except Exception as e:
                 print(f"Error in listen loop: {e}")
+                # Don't break on transient errors, but add a delay
                 time.sleep(1)
     
     def _listen_for_command(self):

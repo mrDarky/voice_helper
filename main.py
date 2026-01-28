@@ -85,7 +85,12 @@ class MainScreen(Screen):
             return
         
         if not self.app.voice_processor.audio_available:
-            self.show_popup('Error', 'No audio input devices available.\n\nPlease check:\n1. Microphone is connected\n2. System audio permissions are granted\n3. Audio drivers are installed')
+            self.show_popup('Error', 
+                'No audio input devices available.\n\n'
+                'Please check:\n'
+                '  1. Microphone is connected\n'
+                '  2. System audio permissions are granted\n'
+                '  3. Audio drivers are installed')
             return
         
         self.is_listening = True
