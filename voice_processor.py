@@ -72,7 +72,9 @@ class VoiceProcessor:
             
         trigger_phrase = self.db.get_setting('trigger_phrase').lower()
         
-        # Create a new microphone instance for ambient noise adjustment
+        # Adjust for ambient noise once at the start
+        # Note: This adjusts the recognizer's energy_threshold, which persists
+        # across all microphone instances, so we only need to do it once
         microphone = sr.Microphone()
         with microphone as source:
             self.recognizer.adjust_for_ambient_noise(source, duration=1)
