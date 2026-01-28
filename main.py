@@ -370,7 +370,7 @@ if __name__ == '__main__':
     except Exception as e:
         print_error_message(
             "Failed to start Voice Helper",
-            f"Error details: {e}\n\nFull traceback:\n{traceback.format_exc()}",
+            f"{traceback.format_exc()}",
             "Please ensure all dependencies are installed:\n"
             "  pip install -r requirements.txt\n"
             "\n"
