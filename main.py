@@ -1,20 +1,53 @@
-import os
-os.environ['KIVY_NO_CONSOLELOG'] = '1'
-
-from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.popup import Popup
-from kivy.clock import Clock
-from kivy.core.window import Window
+import sys
+import traceback
 from datetime import datetime
 import threading
 
-from database import Database
-from voice_processor import VoiceProcessor
-from translator import TranslationService
+def print_error_message(title, details, suggestions=None):
+    """Helper function to print formatted error messages"""
+    print(f"\n{'='*60}")
+    print(f"ERROR: {title}")
+    print(f"{'='*60}")
+    print(details)
+    if suggestions is not None:
+        print(f"\n{suggestions}")
+    print(f"{'='*60}\n")
+
+# Check for critical dependencies first
+try:
+    from kivy.app import App
+    from kivy.uix.screenmanager import ScreenManager, Screen
+    from kivy.uix.boxlayout import BoxLayout
+    from kivy.uix.button import Button
+    from kivy.uix.label import Label
+    from kivy.uix.popup import Popup
+    from kivy.clock import Clock
+    from kivy.core.window import Window
+except ImportError as e:
+    print_error_message(
+        "Missing required dependency",
+        f"Failed to import: {e}",
+        "Please install all dependencies:\n"
+        "  pip install -r requirements.txt\n"
+        "\n"
+        "Or run the setup script:\n"
+        "  ./setup.sh (Linux/macOS)\n"
+        "  setup.bat (Windows)"
+    )
+    sys.exit(1)
+
+try:
+    from database import Database
+    from voice_processor import VoiceProcessor
+    from translator import TranslationService
+except ImportError as e:
+    print_error_message(
+        "Failed to import application modules",
+        f"Error: {e}",
+        "Please ensure you're running from the correct directory\n"
+        "and all project files are present."
+    )
+    sys.exit(1)
 
 try:
     import pyttsx3
@@ -332,4 +365,15 @@ class VoiceHelperApp(App):
 
 
 if __name__ == '__main__':
-    VoiceHelperApp().run()
+    try:
+        VoiceHelperApp().run()
+    except Exception as e:
+        print_error_message(
+            "Failed to start Voice Helper",
+            f"{traceback.format_exc()}",
+            "Please ensure all dependencies are installed:\n"
+            "  pip install -r requirements.txt\n"
+            "\n"
+            "For more information, see README.md"
+        )
+        sys.exit(1)
