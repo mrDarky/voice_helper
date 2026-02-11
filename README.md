@@ -67,22 +67,58 @@ python main.py
    - Click "Start Listening" on the main screen
    - Say your trigger phrase (e.g., "hey assistant")
    - Give a command, for example:
-     - "Translate to Spanish" - then speak the text you want to translate
-     - "Translate to French" - then speak the text you want to translate
+      - "Translate to Spanish" - then speak the text you want to translate
+      - "Translate from Russian to English" - then speak the text you want to translate
+      - "Translate from English to Russian" - then speak the text you want to translate
+
+4. **Use Text Input Mode** (No Voice Required):
+   - On the main screen, find the "Text Input Mode" section
+   - Enter the text you want to translate in the "Text to translate" field
+   - Enter a command in the "Command" field (e.g., "translate from russian to english")
+   - Click "Execute" button
+   - The translation will appear in the log and in a popup
 
 ## Commands
 
-### Translation Command
+### Translation Commands
+
+#### Voice Mode
 ```
 [Trigger Phrase] translate to [language]
+[Trigger Phrase] translate from [source_language] to [target_language]
 ```
 
-Example:
+Examples:
 1. Say: "hey assistant"
 2. Say: "translate to Spanish"
 3. The app will prompt you to speak the text to translate
 4. Say: "Hello, how are you?"
 5. The app will show and optionally speak the translation
+
+Or for bidirectional translation:
+1. Say: "hey assistant"
+2. Say: "translate from russian to english"
+3. The app will prompt you to speak the text to translate
+4. Say the Russian text
+5. The app will show the English translation
+
+#### Text Mode (No Voice Required)
+1. Enter text to translate in the "Text to translate" field
+2. Enter command in the "Command" field:
+   - `translate from russian to english`
+   - `translate from english to russian`
+   - `translate to spanish`
+3. Click "Execute" button
+4. View the translation in the popup
+
+### Supported Command Formats
+- `translate to [language]` - Auto-detects source language
+- `translate from [source] to [target]` - Explicit source and target languages
+- Examples:
+  - `translate from russian to english`
+  - `translate from english to russian`
+  - `translate from spanish to french`
+  - `translate to german`
 
 ## Supported Languages
 
