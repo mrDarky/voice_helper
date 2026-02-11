@@ -158,20 +158,67 @@
         Label:
             text: 'Voice Helper'
             font_size: 32
-            size_hint_y: 0.15
+            size_hint_y: 0.1
         
         Label:
             id: status_label
             text: 'Status: Stopped'
             font_size: 18
-            size_hint_y: 0.1
+            size_hint_y: 0.08
         
         Label:
             id: active_model_label
             text: 'Active Model: None'
             font_size: 14
-            size_hint_y: 0.1
+            size_hint_y: 0.07
         
+        # Text input section
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 0.2
+            spacing: 5
+            
+            Label:
+                text: 'Text Input Mode (no voice required)'
+                font_size: 14
+                size_hint_y: 0.3
+            
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: 0.35
+                spacing: 5
+                
+                Label:
+                    text: 'Text to translate:'
+                    size_hint_x: 0.3
+                
+                TextInput:
+                    id: text_input_field
+                    multiline: False
+                    size_hint_x: 0.7
+                    hint_text: 'Enter text to translate'
+            
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: 0.35
+                spacing: 5
+                
+                Label:
+                    text: 'Command:'
+                    size_hint_x: 0.3
+                
+                TextInput:
+                    id: text_command_input
+                    multiline: False
+                    size_hint_x: 0.5
+                    hint_text: 'e.g., translate from russian to english'
+                
+                Button:
+                    text: 'Execute'
+                    size_hint_x: 0.2
+                    on_press: root.process_text_command()
+        
+        # Voice control buttons
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: 0.1
@@ -192,7 +239,7 @@
                 on_press: root.manager.current = 'settings'
         
         ScrollView:
-            size_hint_y: 0.55
+            size_hint_y: 0.45
             
             Label:
                 id: log_label

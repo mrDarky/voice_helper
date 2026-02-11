@@ -48,19 +48,32 @@ def test_translator():
         from translator import TranslationService
         ts = TranslationService()
         
-        # Test command parsing
-        lang = ts.parse_translate_command("translate to spanish")
-        assert lang == 'es', f"Expected 'es', got '{lang}'"
-        print(f"✓ Command parsing: 'translate to spanish' -> '{lang}'")
+        # Test command parsing - old format
+        source, target = ts.parse_translate_command("translate to spanish")
+        assert source == 'auto' and target == 'es', f"Expected ('auto', 'es'), got ('{source}', '{target}')"
+        print(f"✓ Command parsing: 'translate to spanish' -> ('{source}', '{target}')")
         
-        lang = ts.parse_translate_command("translate to french")
-        assert lang == 'fr', f"Expected 'fr', got '{lang}'"
-        print(f"✓ Command parsing: 'translate to french' -> '{lang}'")
+        source, target = ts.parse_translate_command("translate to french")
+        assert source == 'auto' and target == 'fr', f"Expected ('auto', 'fr'), got ('{source}', '{target}')"
+        print(f"✓ Command parsing: 'translate to french' -> ('{source}', '{target}')")
+        
+        # Test new bidirectional command parsing
+        source, target = ts.parse_translate_command("translate from russian to english")
+        assert source == 'ru' and target == 'en', f"Expected ('ru', 'en'), got ('{source}', '{target}')"
+        print(f"✓ Command parsing: 'translate from russian to english' -> ('{source}', '{target}')")
+        
+        source, target = ts.parse_translate_command("translate from english to russian")
+        assert source == 'en' and target == 'ru', f"Expected ('en', 'ru'), got ('{source}', '{target}')"
+        print(f"✓ Command parsing: 'translate from english to russian' -> ('{source}', '{target}')")
         
         # Test language code mapping
         code = ts._language_to_code('german')
         assert code == 'de', f"Expected 'de', got '{code}'"
         print("✓ Language code mapping working")
+        
+        code = ts._language_to_code('russian')
+        assert code == 'ru', f"Expected 'ru', got '{code}'"
+        print("✓ Russian language code mapping: 'russian' -> 'ru'")
         
         print("✓ Translation service initialized (actual translation requires API)")
         

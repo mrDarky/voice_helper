@@ -111,6 +111,39 @@ class MainScreen(Screen):
         
         self.app.voice_processor.stop_listening()
     
+    def process_text_command(self):
+        """Process text command entered in text field"""
+        command = self.ids.text_command_input.text.strip()
+        if not command:
+            self.show_popup('Error', 'Please enter a command')
+            return
+        
+        self.add_log(f'Text command: {command}')
+        self.ids.text_command_input.text = ''  # Clear input
+        
+        # Process the command
+        command_lower = command.lower()
+        
+        if 'translate' in command_lower:
+            self.handle_text_translate_command(command)
+        else:
+            self.add_log('Unknown command. Try: "translate from russian to english"')
+    
+    def handle_text_translate_command(self, command):
+        """Handle text-based translation command"""
+        source_lang, target_lang = self.app.translator.parse_translate_command(command)
+        self.add_log(f'Translation from {source_lang} to {target_lang} requested')
+        
+        # Get the text to translate from the text input field
+        text_to_translate = self.ids.text_input_field.text.strip()
+        
+        if not text_to_translate:
+            self.show_popup('Info', 'Please enter text to translate in the input field')
+            return
+        
+        self.ids.text_input_field.text = ''  # Clear input
+        self.app.do_translate(text_to_translate, target_lang, source_lang)
+    
     def add_log(self, message):
         """Add message to log"""
         timestamp = datetime.now().strftime('%H:%M:%S')
@@ -319,25 +352,25 @@ class VoiceHelperApp(App):
     
     def handle_translate_command(self, command):
         """Handle translation command"""
-        target_lang = self.translator.parse_translate_command(command)
-        self.main_screen.add_log(f'Translation to {target_lang} requested')
+        source_lang, target_lang = self.translator.parse_translate_command(command)
+        self.main_screen.add_log(f'Translation from {source_lang} to {target_lang} requested')
         self.main_screen.add_log('Please speak the text to translate...')
         
         def listen_and_translate():
             text = self.voice_processor.listen_once()
             if text:
-                Clock.schedule_once(lambda dt: self.do_translate(text, target_lang), 0)
+                Clock.schedule_once(lambda dt: self.do_translate(text, target_lang, source_lang), 0)
             else:
                 Clock.schedule_once(lambda dt: self.main_screen.add_log('Failed to capture text'), 0)
         
         threading.Thread(target=listen_and_translate, daemon=True).start()
     
-    def do_translate(self, text, target_lang):
+    def do_translate(self, text, target_lang, source_lang='auto'):
         """Perform translation"""
         self.main_screen.add_log(f'Translating: "{text}"')
         
         def translate_thread():
-            result = self.translator.translate(text, target_lang)
+            result = self.translator.translate(text, target_lang, source_lang)
             Clock.schedule_once(lambda dt: self.show_translation_result(text, result, target_lang), 0)
         
         threading.Thread(target=translate_thread, daemon=True).start()
