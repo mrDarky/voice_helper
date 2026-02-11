@@ -23,6 +23,7 @@ try:
     from kivy.uix.popup import Popup
     from kivy.clock import Clock
     from kivy.core.window import Window
+    from kivy.graphics import Color, RoundedRectangle
 except ImportError as e:
     print_error_message(
         "Missing required dependency",
@@ -56,10 +57,28 @@ except ImportError:
     TTS_AVAILABLE = False
 
 class MainScreen(Screen):
+    # Predefined command list for the dropdown
+    PREDEFINED_COMMANDS = [
+        'translate from russian to english',
+        'translate from english to russian',
+        'translate from spanish to english',
+        'translate from french to english',
+        'translate to spanish',
+        'translate to french',
+        'translate to german',
+        'Custom command...'
+    ]
+    
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         self.app = None
         self.is_listening = False
+    
+    def on_kv_post(self, base_widget):
+        """Called after the kv file is loaded"""
+        # Set the command values from Python for better maintainability
+        if 'command_spinner' in self.ids:
+            self.ids.command_spinner.values = self.PREDEFINED_COMMANDS
     
     def on_enter(self):
         """Called when screen is displayed"""
@@ -125,6 +144,7 @@ class MainScreen(Screen):
             return
         
         self.add_log(f'Text command: {command}')
+        # Keep command in field for reference, but user can clear it manually if needed
         
         # Process the command
         command_lower = command.lower()
@@ -185,6 +205,11 @@ class ModelsScreen(Screen):
         self.ids.available_models.clear_widgets()
         self.ids.downloaded_models.clear_widgets()
         
+        # Define update function once for reuse
+        def update_rect(instance, value):
+            instance.rect.pos = instance.pos
+            instance.rect.size = instance.size
+        
         models = self.app.db.get_all_models()
         
         for model in models:
@@ -195,13 +220,8 @@ class ModelsScreen(Screen):
             
             # Add canvas styling to the box
             with box.canvas.before:
-                from kivy.graphics import Color, RoundedRectangle
                 Color(0.25, 0.25, 0.3, 1)
                 box.rect = RoundedRectangle(pos=box.pos, size=box.size, radius=[8])
-            
-            def update_rect(instance, value):
-                instance.rect.pos = instance.pos
-                instance.rect.size = instance.size
             
             box.bind(pos=update_rect, size=update_rect)
             
@@ -231,15 +251,10 @@ class ModelsScreen(Screen):
                 
                 # Add canvas styling to the dl_box
                 with dl_box.canvas.before:
-                    from kivy.graphics import Color, RoundedRectangle
                     Color(0.25, 0.25, 0.3, 1)
                     dl_box.rect = RoundedRectangle(pos=dl_box.pos, size=dl_box.size, radius=[8])
                 
-                def update_dl_rect(instance, value):
-                    instance.rect.pos = instance.pos
-                    instance.rect.size = instance.size
-                
-                dl_box.bind(pos=update_dl_rect, size=update_dl_rect)
+                dl_box.bind(pos=update_rect, size=update_rect)
                 
                 dl_box.add_widget(Label(text=name, size_hint_x=0.4, color=(1, 1, 1, 0.9), bold=True))
                 dl_box.add_widget(Label(

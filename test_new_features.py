@@ -7,17 +7,24 @@ Tests the new dropdown command selector functionality
 import sys
 
 def test_command_list():
-    """Test that command list is properly defined in Kivy file"""
+    """Test that command list is properly defined"""
     print("\n=== Testing Command List ===")
     try:
         with open('voicehelper.kv', 'r') as f:
-            content = f.read()
+            kv_content = f.read()
+        
+        with open('main.py', 'r') as f:
+            py_content = f.read()
         
         # Check if Spinner widget exists
-        assert 'command_spinner' in content, "command_spinner not found in Kivy file"
+        assert 'command_spinner' in kv_content, "command_spinner not found in Kivy file"
         print("✓ Command spinner widget exists")
         
-        # Check for predefined commands
+        # Check that commands are defined in Python (better practice)
+        assert 'PREDEFINED_COMMANDS' in py_content, "PREDEFINED_COMMANDS not found in Python code"
+        print("✓ Command list defined in Python code (maintainable)")
+        
+        # Check for predefined commands in Python
         expected_commands = [
             'translate from russian to english',
             'translate from english to russian',
@@ -30,11 +37,16 @@ def test_command_list():
         ]
         
         for cmd in expected_commands:
-            assert cmd in content, f"Command '{cmd}' not found in values list"
+            assert cmd in py_content, f"Command '{cmd}' not found in PREDEFINED_COMMANDS"
             print(f"✓ Command available: '{cmd}'")
         
-        # Check that on_text callback is set
-        assert 'on_text: root.on_command_selected(self.text)' in content, "on_text callback not found"
+        # Check that values are set via on_kv_post
+        assert 'on_kv_post' in py_content, "on_kv_post method not found"
+        assert 'command_spinner.values' in py_content, "command_spinner.values assignment not found"
+        print("✓ Commands populated from Python via on_kv_post")
+        
+        # Check that on_text callback is set in KV file
+        assert 'on_text: root.on_command_selected(self.text)' in kv_content, "on_text callback not found"
         print("✓ Command selection callback configured")
         
         return True
