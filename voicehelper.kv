@@ -2,30 +2,48 @@
 
 <ModelsScreen>:
     name: 'models'
+    canvas.before:
+        Color:
+            rgba: 0.12, 0.12, 0.15, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
     BoxLayout:
         orientation: 'vertical'
-        padding: 20
-        spacing: 10
+        padding: 30
+        spacing: 15
         
         Label:
-            text: 'Whisper Model Management'
-            font_size: 24
-            size_hint_y: 0.1
+            text: '⚙️ Whisper Model Management'
+            font_size: 28
+            bold: True
+            size_hint_y: 0.08
+            color: 0.2, 0.7, 1, 1
         
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: 0.8
-            spacing: 10
+            spacing: 15
             
             # Available models list
             BoxLayout:
                 orientation: 'vertical'
                 size_hint_x: 0.5
+                canvas.before:
+                    Color:
+                        rgba: 0.18, 0.18, 0.22, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [15]
                 
                 Label:
-                    text: 'Available Models'
+                    text: '📥 Available Models'
                     size_hint_y: 0.1
                     font_size: 18
+                    bold: True
+                    color: 0.2, 0.7, 1, 1
                 
                 ScrollView:
                     GridLayout:
@@ -33,17 +51,27 @@
                         cols: 1
                         size_hint_y: None
                         height: self.minimum_height
-                        spacing: 5
+                        spacing: 8
+                        padding: 10
             
             # Downloaded models table
             BoxLayout:
                 orientation: 'vertical'
                 size_hint_x: 0.5
+                canvas.before:
+                    Color:
+                        rgba: 0.18, 0.18, 0.22, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [15]
                 
                 Label:
-                    text: 'Downloaded Models'
+                    text: '✓ Downloaded Models'
                     size_hint_y: 0.1
                     font_size: 18
+                    bold: True
+                    color: 0.18, 0.7, 0.18, 1
                 
                 ScrollView:
                     GridLayout:
@@ -51,200 +79,430 @@
                         cols: 1
                         size_hint_y: None
                         height: self.minimum_height
-                        spacing: 5
+                        spacing: 8
+                        padding: 10
         
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: 0.1
-            spacing: 10
+            spacing: 15
             
             Button:
-                text: 'Refresh'
+                text: '🔄 Refresh'
                 on_press: root.refresh_models()
+                background_normal: ''
+                background_color: 0.2, 0.6, 0.9, 1
+                bold: True
+                font_size: 16
+                canvas.before:
+                    Color:
+                        rgba: self.background_color if self.state == 'normal' else (0.15, 0.5, 0.8, 1)
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [12]
             
             Button:
-                text: 'Settings'
+                text: '🔧 Settings'
                 on_press: root.manager.current = 'settings'
+                background_normal: ''
+                background_color: 0.25, 0.25, 0.3, 1
+                bold: True
+                font_size: 16
+                canvas.before:
+                    Color:
+                        rgba: self.background_color if self.state == 'normal' else (0.2, 0.2, 0.25, 1)
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [12]
             
             Button:
-                text: 'Main'
+                text: '🏠 Main'
                 on_press: root.manager.current = 'main'
+                background_normal: ''
+                background_color: 0.25, 0.25, 0.3, 1
+                bold: True
+                font_size: 16
+                canvas.before:
+                    Color:
+                        rgba: self.background_color if self.state == 'normal' else (0.2, 0.2, 0.25, 1)
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [12]
 
 <SettingsScreen>:
     name: 'settings'
+    canvas.before:
+        Color:
+            rgba: 0.12, 0.12, 0.15, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
     BoxLayout:
         orientation: 'vertical'
-        padding: 20
-        spacing: 10
+        padding: 30
+        spacing: 15
         
         Label:
-            text: 'Settings'
-            font_size: 24
-            size_hint_y: 0.1
+            text: '🔧 Settings'
+            font_size: 28
+            bold: True
+            size_hint_y: 0.08
+            color: 0.2, 0.7, 1, 1
         
         ScrollView:
+            canvas.before:
+                Color:
+                    rgba: 0.18, 0.18, 0.22, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [15]
+            
             BoxLayout:
                 orientation: 'vertical'
                 size_hint_y: None
                 height: self.minimum_height
-                spacing: 15
-                padding: 10
+                spacing: 20
+                padding: 20
                 
                 # Trigger phrase
                 BoxLayout:
                     orientation: 'vertical'
                     size_hint_y: None
-                    height: 80
+                    height: 90
+                    spacing: 8
                     
                     Label:
-                        text: 'Trigger Phrase'
-                        size_hint_y: 0.4
+                        text: '🎤 Trigger Phrase'
+                        size_hint_y: 0.35
+                        font_size: 16
+                        bold: True
+                        color: 0.2, 0.7, 1, 1
+                        halign: 'left'
+                        text_size: self.size
                     
                     TextInput:
                         id: trigger_phrase
                         multiline: False
-                        size_hint_y: 0.6
+                        size_hint_y: 0.65
+                        background_color: 0.25, 0.25, 0.3, 1
+                        foreground_color: 1, 1, 1, 1
+                        cursor_color: 0.2, 0.7, 1, 1
+                        padding: [12, 10]
+                        font_size: 15
                 
                 # Translation API
                 BoxLayout:
                     orientation: 'vertical'
                     size_hint_y: None
-                    height: 80
+                    height: 90
+                    spacing: 8
                     
                     Label:
-                        text: 'Translation API'
-                        size_hint_y: 0.4
+                        text: '🌐 Translation API'
+                        size_hint_y: 0.35
+                        font_size: 16
+                        bold: True
+                        color: 0.2, 0.7, 1, 1
+                        halign: 'left'
+                        text_size: self.size
                     
                     Spinner:
                         id: translation_api
                         text: 'google'
                         values: ['google', 'deepl']
-                        size_hint_y: 0.6
+                        size_hint_y: 0.65
+                        background_color: 0.25, 0.25, 0.3, 1
+                        color: 1, 1, 1, 1
+                        font_size: 15
                 
                 # Voice answer toggle
                 BoxLayout:
                     orientation: 'horizontal'
                     size_hint_y: None
-                    height: 50
+                    height: 60
+                    spacing: 15
+                    canvas.before:
+                        Color:
+                            rgba: 0.25, 0.25, 0.3, 0.5
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [10]
                     
                     Label:
-                        text: 'Voice Answer'
+                        text: '🔊 Voice Answer'
                         size_hint_x: 0.7
+                        font_size: 16
+                        bold: True
+                        color: 0.2, 0.7, 1, 1
+                        padding: [15, 0]
                     
                     CheckBox:
                         id: voice_answer
                         size_hint_x: 0.3
+                        color: 0.2, 0.7, 1, 1
         
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: 0.1
-            spacing: 10
+            spacing: 15
             
             Button:
-                text: 'Save'
+                text: '💾 Save'
                 on_press: root.save_settings()
+                background_normal: ''
+                background_color: 0.18, 0.7, 0.18, 1
+                bold: True
+                font_size: 16
+                canvas.before:
+                    Color:
+                        rgba: self.background_color if self.state == 'normal' else (0.15, 0.6, 0.15, 1)
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [12]
             
             Button:
-                text: 'Back'
+                text: '← Back'
                 on_press: root.manager.current = 'main'
+                background_normal: ''
+                background_color: 0.25, 0.25, 0.3, 1
+                bold: True
+                font_size: 16
+                canvas.before:
+                    Color:
+                        rgba: self.background_color if self.state == 'normal' else (0.2, 0.2, 0.25, 1)
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [12]
 
 <MainScreen>:
     name: 'main'
+    canvas.before:
+        Color:
+            rgba: 0.12, 0.12, 0.15, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
     BoxLayout:
         orientation: 'vertical'
-        padding: 20
-        spacing: 10
+        padding: 30
+        spacing: 15
         
+        # Header with gradient effect
         Label:
             text: 'Voice Helper'
-            font_size: 32
+            font_size: 36
+            bold: True
             size_hint_y: 0.1
+            color: 0.2, 0.7, 1, 1
         
-        Label:
-            id: status_label
-            text: 'Status: Stopped'
-            font_size: 18
-            size_hint_y: 0.08
-        
-        Label:
-            id: active_model_label
-            text: 'Active Model: None'
-            font_size: 14
-            size_hint_y: 0.07
-        
-        # Text input section
+        # Status cards
         BoxLayout:
-            orientation: 'vertical'
-            size_hint_y: 0.2
-            spacing: 5
+            orientation: 'horizontal'
+            size_hint_y: 0.08
+            spacing: 10
             
             Label:
-                text: 'Text Input Mode (no voice required)'
+                id: status_label
+                text: 'Status: Stopped'
+                font_size: 16
+                size_hint_x: 0.6
+                color: 1, 1, 1, 0.9
+                canvas.before:
+                    Color:
+                        rgba: 0.18, 0.18, 0.22, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [10]
+            
+            Label:
+                id: active_model_label
+                text: 'Active Model: None'
                 font_size: 14
-                size_hint_y: 0.3
+                size_hint_x: 0.4
+                color: 1, 1, 1, 0.8
+                canvas.before:
+                    Color:
+                        rgba: 0.18, 0.18, 0.22, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [10]
+        
+        # Text input section with modern design
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 0.25
+            spacing: 10
+            padding: 15
+            canvas.before:
+                Color:
+                    rgba: 0.18, 0.18, 0.22, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [15]
+            
+            Label:
+                text: '📝 Text Input Mode (no voice required)'
+                font_size: 15
+                bold: True
+                size_hint_y: 0.2
+                color: 0.2, 0.7, 1, 1
             
             BoxLayout:
                 orientation: 'horizontal'
-                size_hint_y: 0.35
-                spacing: 5
+                size_hint_y: 0.3
+                spacing: 10
                 
                 Label:
                     text: 'Text to translate:'
-                    size_hint_x: 0.3
+                    size_hint_x: 0.25
+                    color: 1, 1, 1, 0.8
                 
                 TextInput:
                     id: text_input_field
                     multiline: False
-                    size_hint_x: 0.7
+                    size_hint_x: 0.75
                     hint_text: 'Enter text to translate'
+                    background_color: 0.25, 0.25, 0.3, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 0.2, 0.7, 1, 1
+                    padding: [10, 8]
             
             BoxLayout:
                 orientation: 'horizontal'
-                size_hint_y: 0.35
-                spacing: 5
+                size_hint_y: 0.3
+                spacing: 10
                 
                 Label:
                     text: 'Command:'
-                    size_hint_x: 0.3
+                    size_hint_x: 0.25
+                    color: 1, 1, 1, 0.8
+                
+                Spinner:
+                    id: command_spinner
+                    text: 'Select command...'
+                    values: []
+                    size_hint_x: 0.4
+                    background_color: 0.25, 0.25, 0.3, 1
+                    color: 1, 1, 1, 1
+                    on_text: root.on_command_selected(self.text)
                 
                 TextInput:
                     id: text_command_input
                     multiline: False
-                    size_hint_x: 0.5
-                    hint_text: 'e.g., translate from russian to english'
-                
-                Button:
-                    text: 'Execute'
-                    size_hint_x: 0.2
-                    on_press: root.process_text_command()
+                    size_hint_x: 0.35
+                    hint_text: 'Or enter custom command'
+                    background_color: 0.25, 0.25, 0.3, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 0.2, 0.7, 1, 1
+                    padding: [10, 8]
+            
+            Button:
+                text: '▶ Execute Command'
+                size_hint_y: 0.2
+                background_color: 0.2, 0.6, 0.9, 1
+                background_normal: ''
+                bold: True
+                on_press: root.process_text_command()
+                canvas.before:
+                    Color:
+                        rgba: self.background_color if self.state == 'normal' else (0.15, 0.5, 0.8, 1)
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [10]
         
-        # Voice control buttons
+        # Voice control buttons with modern design
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: 0.1
-            spacing: 10
+            spacing: 15
             
             Button:
                 id: start_button
-                text: 'Start Listening'
+                text: '🎤 Start Listening'
                 on_press: root.toggle_listening()
-                background_color: 0.2, 0.8, 0.2, 1
+                background_normal: ''
+                background_color: 0.18, 0.7, 0.18, 1
+                bold: True
+                font_size: 16
+                canvas.before:
+                    Color:
+                        rgba: self.background_color if self.state == 'normal' else (0.15, 0.6, 0.15, 1)
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [12]
             
             Button:
-                text: 'Models'
+                text: '⚙️ Models'
                 on_press: root.manager.current = 'models'
+                background_normal: ''
+                background_color: 0.25, 0.25, 0.3, 1
+                bold: True
+                font_size: 16
+                canvas.before:
+                    Color:
+                        rgba: self.background_color if self.state == 'normal' else (0.2, 0.2, 0.25, 1)
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [12]
             
             Button:
-                text: 'Settings'
+                text: '🔧 Settings'
                 on_press: root.manager.current = 'settings'
+                background_normal: ''
+                background_color: 0.25, 0.25, 0.3, 1
+                bold: True
+                font_size: 16
+                canvas.before:
+                    Color:
+                        rgba: self.background_color if self.state == 'normal' else (0.2, 0.2, 0.25, 1)
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [12]
         
-        ScrollView:
-            size_hint_y: 0.45
+        # Log section with modern styling
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 0.47
+            canvas.before:
+                Color:
+                    rgba: 0.18, 0.18, 0.22, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [15]
             
             Label:
-                id: log_label
-                text: 'Waiting to start...'
-                size_hint_y: None
-                height: self.texture_size[1]
-                text_size: self.width, None
-                markup: True
+                text: '📋 Activity Log'
+                font_size: 14
+                bold: True
+                size_hint_y: 0.08
+                color: 0.2, 0.7, 1, 1
+            
+            ScrollView:
+                size_hint_y: 0.92
+                
+                Label:
+                    id: log_label
+                    text: 'Waiting to start...'
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    text_size: self.width - 20, None
+                    markup: True
+                    padding: [10, 10]
+                    color: 1, 1, 1, 0.9

@@ -23,6 +23,7 @@ try:
     from kivy.uix.popup import Popup
     from kivy.clock import Clock
     from kivy.core.window import Window
+    from kivy.graphics import Color, RoundedRectangle
 except ImportError as e:
     print_error_message(
         "Missing required dependency",
@@ -56,10 +57,28 @@ except ImportError:
     TTS_AVAILABLE = False
 
 class MainScreen(Screen):
+    # Predefined command list for the dropdown
+    PREDEFINED_COMMANDS = [
+        'translate from russian to english',
+        'translate from english to russian',
+        'translate from spanish to english',
+        'translate from french to english',
+        'translate to spanish',
+        'translate to french',
+        'translate to german',
+        'Custom command...'
+    ]
+    
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         self.app = None
         self.is_listening = False
+    
+    def on_kv_post(self, base_widget):
+        """Called after the kv file is loaded"""
+        # Set the command values from Python for better maintainability
+        if 'command_spinner' in self.ids:
+            self.ids.command_spinner.values = self.PREDEFINED_COMMANDS
     
     def on_enter(self):
         """Called when screen is displayed"""
@@ -70,6 +89,12 @@ class MainScreen(Screen):
         """Update status display"""
         active_model = self.app.db.get_active_model()
         self.ids.active_model_label.text = f'Active Model: {active_model if active_model else "None"}'
+    
+    def on_command_selected(self, command_text):
+        """Handle command selection from spinner"""
+        if command_text and command_text != 'Select command...' and command_text != 'Custom command...':
+            # Auto-fill the text input with the selected command
+            self.ids.text_command_input.text = command_text
     
     def toggle_listening(self):
         """Toggle listening on/off"""
@@ -94,7 +119,7 @@ class MainScreen(Screen):
             return
         
         self.is_listening = True
-        self.ids.start_button.text = 'Stop Listening'
+        self.ids.start_button.text = '⏹️ Stop Listening'
         self.ids.start_button.background_color = (0.8, 0.2, 0.2, 1)
         self.ids.status_label.text = 'Status: Listening for trigger...'
         self.add_log('Started listening for trigger phrase')
@@ -104,8 +129,8 @@ class MainScreen(Screen):
     def stop_listening(self):
         """Stop voice listening"""
         self.is_listening = False
-        self.ids.start_button.text = 'Start Listening'
-        self.ids.start_button.background_color = (0.2, 0.8, 0.2, 1)
+        self.ids.start_button.text = '🎤 Start Listening'
+        self.ids.start_button.background_color = (0.18, 0.7, 0.18, 1)
         self.ids.status_label.text = 'Status: Stopped'
         self.add_log('Stopped listening')
         
@@ -115,11 +140,11 @@ class MainScreen(Screen):
         """Process text command entered in text field"""
         command = self.ids.text_command_input.text.strip()
         if not command:
-            self.show_popup('Error', 'Please enter a command')
+            self.show_popup('Error', 'Please select or enter a command')
             return
         
         self.add_log(f'Text command: {command}')
-        self.ids.text_command_input.text = ''  # Clear input
+        # Keep command in field for reference, but user can clear it manually if needed
         
         # Process the command
         command_lower = command.lower()
@@ -180,24 +205,40 @@ class ModelsScreen(Screen):
         self.ids.available_models.clear_widgets()
         self.ids.downloaded_models.clear_widgets()
         
+        # Define update function once for reuse
+        def update_rect(instance, value):
+            instance.rect.pos = instance.pos
+            instance.rect.size = instance.size
+        
         models = self.app.db.get_all_models()
         
         for model in models:
             model_id, name, downloaded, active, download_date = model
             
             # Add to available models
-            box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
-            box.add_widget(Label(text=name, size_hint_x=0.4))
+            box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50, spacing=8, padding=[5, 5])
+            
+            # Add canvas styling to the box
+            with box.canvas.before:
+                Color(0.25, 0.25, 0.3, 1)
+                box.rect = RoundedRectangle(pos=box.pos, size=box.size, radius=[8])
+            
+            box.bind(pos=update_rect, size=update_rect)
+            
+            box.add_widget(Label(text=name, size_hint_x=0.4, color=(1, 1, 1, 0.9), bold=True))
             
             if downloaded:
-                status_label = Label(text='✓ Downloaded', size_hint_x=0.3, color=(0, 1, 0, 1))
+                status_label = Label(text='✓ Downloaded', size_hint_x=0.3, color=(0.18, 0.7, 0.18, 1), bold=True)
             else:
-                status_label = Label(text='Not Downloaded', size_hint_x=0.3)
+                status_label = Label(text='Not Downloaded', size_hint_x=0.3, color=(1, 1, 1, 0.6))
             box.add_widget(status_label)
             
             download_btn = Button(
                 text='Download' if not downloaded else 'Re-download',
-                size_hint_x=0.3
+                size_hint_x=0.3,
+                background_normal='',
+                background_color=(0.2, 0.6, 0.9, 1) if not downloaded else (0.6, 0.6, 0.6, 1),
+                bold=True
             )
             download_btn.bind(on_press=lambda btn, m=name: self.download_model(m))
             box.add_widget(download_btn)
@@ -206,18 +247,30 @@ class ModelsScreen(Screen):
             
             # Add to downloaded models if downloaded
             if downloaded:
-                dl_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
-                dl_box.add_widget(Label(text=name, size_hint_x=0.4))
+                dl_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50, spacing=8, padding=[5, 5])
+                
+                # Add canvas styling to the dl_box
+                with dl_box.canvas.before:
+                    Color(0.25, 0.25, 0.3, 1)
+                    dl_box.rect = RoundedRectangle(pos=dl_box.pos, size=dl_box.size, radius=[8])
+                
+                dl_box.bind(pos=update_rect, size=update_rect)
+                
+                dl_box.add_widget(Label(text=name, size_hint_x=0.4, color=(1, 1, 1, 0.9), bold=True))
                 dl_box.add_widget(Label(
-                    text=f'Active' if active else 'Inactive',
+                    text=f'⭐ Active' if active else 'Inactive',
                     size_hint_x=0.3,
-                    color=(0, 1, 0, 1) if active else (1, 1, 1, 1)
+                    color=(0.18, 0.7, 0.18, 1) if active else (1, 1, 1, 0.6),
+                    bold=active
                 ))
                 
                 activate_btn = Button(
                     text='Set Active',
                     size_hint_x=0.3,
-                    disabled=active
+                    disabled=active,
+                    background_normal='',
+                    background_color=(0.18, 0.7, 0.18, 1) if not active else (0.4, 0.4, 0.4, 1),
+                    bold=True
                 )
                 activate_btn.bind(on_press=lambda btn, m=name: self.set_active_model(m))
                 dl_box.add_widget(activate_btn)
@@ -305,7 +358,8 @@ class SettingsScreen(Screen):
 
 class VoiceHelperApp(App):
     def build(self):
-        Window.size = (900, 600)
+        Window.size = (1000, 700)
+        Window.clearcolor = (0.12, 0.12, 0.15, 1)
         
         # Initialize components
         self.db = Database()
