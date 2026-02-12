@@ -12,7 +12,34 @@ except ImportError:
     
 import threading
 import time
+import os
+import sys
+from contextlib import contextmanager
 from database import Database
+
+
+@contextmanager
+def suppress_alsa_errors():
+    """Context manager to suppress ALSA/JACK error messages"""
+    # Save original stderr
+    original_stderr = sys.stderr
+    original_stderr_fd = None
+    
+    try:
+        # Try to redirect file descriptor level stderr to devnull
+        # This suppresses C-level ALSA/JACK errors that can't be caught in Python
+        original_stderr_fd = os.dup(2)
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, 2)
+        os.close(devnull)
+        
+        yield
+    finally:
+        # Restore original stderr
+        if original_stderr_fd is not None:
+            os.dup2(original_stderr_fd, 2)
+            os.close(original_stderr_fd)
+        sys.stderr = original_stderr
 
 class VoiceProcessor:
     def __init__(self):
@@ -35,41 +62,43 @@ class VoiceProcessor:
         if not SR_AVAILABLE:
             return False
         
-        try:
-            # Try to create a microphone instance to check if audio devices are available
-            # This will fail with an OSError or assertion if no audio hardware is present
-            import pyaudio
-            p = pyaudio.PyAudio()
-            
+        # Suppress ALSA/JACK error messages during audio hardware detection
+        with suppress_alsa_errors():
             try:
-                # Check if there are any input devices
-                device_count = p.get_device_count()
-                has_input_device = False
+                # Try to create a microphone instance to check if audio devices are available
+                # This will fail with an OSError or assertion if no audio hardware is present
+                import pyaudio
+                p = pyaudio.PyAudio()
                 
-                for i in range(device_count):
-                    try:
-                        device_info = p.get_device_info_by_index(i)
-                        if device_info.get('maxInputChannels', 0) > 0:
-                            has_input_device = True
-                            break
-                    except Exception:
-                        continue
+                try:
+                    # Check if there are any input devices
+                    device_count = p.get_device_count()
+                    has_input_device = False
+                    
+                    for i in range(device_count):
+                        try:
+                            device_info = p.get_device_info_by_index(i)
+                            if device_info.get('maxInputChannels', 0) > 0:
+                                has_input_device = True
+                                break
+                        except Exception:
+                            continue
+                    
+                    if not has_input_device:
+                        print("Warning: No audio input devices found")
+                        return False
+                    
+                    return True
+                finally:
+                    # Always terminate PyAudio instance to avoid resource leaks
+                    p.terminate()
                 
-                if not has_input_device:
-                    print("Warning: No audio input devices found")
-                    return False
-                
-                return True
-            finally:
-                # Always terminate PyAudio instance to avoid resource leaks
-                p.terminate()
-            
-        except (OSError, AssertionError) as e:
-            print(f"Warning: Audio hardware not available: {e}")
-            return False
-        except Exception as e:
-            print(f"Warning: Could not check audio availability: {e}")
-            return False
+            except (OSError, AssertionError) as e:
+                print(f"Warning: Audio hardware not available: {e}")
+                return False
+            except Exception as e:
+                print(f"Warning: Could not check audio availability: {e}")
+                return False
         
     def load_whisper_model(self):
         """Load the active Whisper model"""
