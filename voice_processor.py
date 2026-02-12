@@ -66,7 +66,7 @@ def catch_abort_signal():
     try:
         # Only install signal handler if we're in the main thread
         # signal.signal() raises ValueError if called from non-main thread
-        if threading.current_thread() is threading.main_thread():
+        if threading.current_thread() == threading.main_thread():
             try:
                 original_handler = signal.signal(signal.SIGABRT, abort_handler)
                 signal_installed = True
@@ -76,7 +76,7 @@ def catch_abort_signal():
         yield
     finally:
         # Restore original SIGABRT handler only if we installed one
-        if signal_installed and original_handler is not None:
+        if signal_installed:
             try:
                 signal.signal(signal.SIGABRT, original_handler)
             except ValueError:
