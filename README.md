@@ -21,8 +21,10 @@ A desktop voice assistant application built with Python, Kivy, and OpenAI Whispe
 #### Ubuntu/Debian
 ```bash
 sudo apt-get update
-sudo apt-get install python3-pyaudio portaudio19-dev ffmpeg
+sudo apt-get install python3-pyaudio portaudio19-dev ffmpeg xclip
 ```
+
+Note: `xclip` is optional but recommended for clipboard functionality in Kivy applications.
 
 #### macOS
 ```bash
