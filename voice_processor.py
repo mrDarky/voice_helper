@@ -21,8 +21,6 @@ from database import Database
 @contextmanager
 def suppress_alsa_errors():
     """Context manager to suppress ALSA/JACK error messages"""
-    # Save original stderr
-    original_stderr = sys.stderr
     original_stderr_fd = None
     
     try:
@@ -35,11 +33,10 @@ def suppress_alsa_errors():
         
         yield
     finally:
-        # Restore original stderr
+        # Restore original stderr file descriptor
         if original_stderr_fd is not None:
             os.dup2(original_stderr_fd, 2)
             os.close(original_stderr_fd)
-        sys.stderr = original_stderr
 
 class VoiceProcessor:
     def __init__(self):
