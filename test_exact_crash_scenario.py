@@ -11,8 +11,9 @@ Listening for command...
 Command: translate from Russian to English
 Aborted (core dumped)  <-- This should NOT happen with our fix
 """
+import os
 import sys
-sys.path.insert(0, '/home/runner/work/voice_helper/voice_helper')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from voice_processor import VoiceProcessor, catch_abort_signal, AbortException
 from translator import TranslationService

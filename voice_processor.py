@@ -53,17 +53,15 @@ def catch_abort_signal():
     otherwise kill the process with "Aborted (core dumped)".
     """
     original_handler = None
-    abort_caught = [False]  # Use list to allow modification in nested function
     
     def abort_handler(signum, frame):
         """Signal handler that raises an exception instead of terminating"""
-        abort_caught[0] = True
         raise AbortException("SIGABRT caught - PortAudio assertion failure detected")
     
     try:
         # Install temporary SIGABRT handler
         original_handler = signal.signal(signal.SIGABRT, abort_handler)
-        yield abort_caught
+        yield
     finally:
         # Restore original SIGABRT handler
         if original_handler is not None:
@@ -100,7 +98,7 @@ class VoiceProcessor:
         # Suppress ALSA/JACK error messages during audio hardware detection
         with suppress_alsa_errors():
             # Catch SIGABRT to prevent process termination from PortAudio assertions
-            with catch_abort_signal() as abort_caught:
+            with catch_abort_signal():
                 try:
                     import pyaudio
                     p = pyaudio.PyAudio()

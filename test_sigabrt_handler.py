@@ -7,7 +7,7 @@ import sys
 import signal
 
 # Add the current directory to Python path
-sys.path.insert(0, '/home/runner/work/voice_helper/voice_helper')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from voice_processor import catch_abort_signal, AbortException
 
@@ -19,17 +19,15 @@ def test_sigabrt_handler():
     
     # Test 1: Normal operation (no signal)
     print("Test 1: Normal operation (no SIGABRT)")
-    with catch_abort_signal() as abort_caught:
+    with catch_abort_signal():
         print("  Inside context manager")
         print("  ✓ No signal raised")
-    print(f"  Abort caught: {abort_caught[0]}")
-    assert not abort_caught[0], "Abort should not be caught in normal operation"
     print("  ✓ Test 1 passed\n")
     
     # Test 2: Simulated SIGABRT
     print("Test 2: Simulated SIGABRT")
     caught_exception = False
-    with catch_abort_signal() as abort_caught:
+    with catch_abort_signal():
         try:
             print("  Sending SIGABRT to self...")
             os.kill(os.getpid(), signal.SIGABRT)
