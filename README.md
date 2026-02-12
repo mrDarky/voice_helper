@@ -21,8 +21,10 @@ A desktop voice assistant application built with Python, Kivy, and OpenAI Whispe
 #### Ubuntu/Debian
 ```bash
 sudo apt-get update
-sudo apt-get install python3-pyaudio portaudio19-dev ffmpeg
+sudo apt-get install python3-pyaudio portaudio19-dev ffmpeg xclip
 ```
+
+Note: `xclip` is optional but recommended for clipboard functionality in Kivy applications.
 
 #### macOS
 ```bash
@@ -156,6 +158,26 @@ pip install pyaudio
 brew install portaudio
 pip install pyaudio
 ```
+
+### Clipboard Warning (Linux)
+If you see a warning about "Cutbuffer provider" or "xclip not found":
+```bash
+# Ubuntu/Debian
+sudo apt-get install xclip
+
+# Fedora/RHEL
+sudo dnf install xclip
+
+# Arch Linux
+sudo pacman -S xclip
+```
+This warning is not critical and won't affect the main functionality of the application.
+
+### Signal Handler Error
+If you encounter "ValueError: signal only works in main thread":
+- This has been fixed in the latest version
+- Ensure you're running the latest code from the repository
+- The signal handler now gracefully handles being called from non-main threads
 
 ### Microphone Permission
 Make sure your application has microphone access permissions in your system settings.

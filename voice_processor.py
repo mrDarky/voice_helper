@@ -51,21 +51,37 @@ def catch_abort_signal():
     
     This is critical for catching PortAudio assertion failures that would
     otherwise kill the process with "Aborted (core dumped)".
+    
+    Note: Signal handlers can only be installed in the main thread.
+    When called from a non-main thread, this context manager will still
+    work but won't install the signal handler (it will just yield).
     """
     original_handler = None
+    signal_installed = False
     
     def abort_handler(signum, frame):
         """Signal handler that raises an exception instead of terminating"""
         raise AbortException("SIGABRT caught - PortAudio assertion failure detected")
     
     try:
-        # Install temporary SIGABRT handler
-        original_handler = signal.signal(signal.SIGABRT, abort_handler)
+        # Only install signal handler if we're in the main thread
+        # signal.signal() raises ValueError if called from non-main thread
+        if threading.current_thread() == threading.main_thread():
+            try:
+                original_handler = signal.signal(signal.SIGABRT, abort_handler)
+                signal_installed = True
+            except ValueError:
+                # Can't install signal handler (not in main thread or main interpreter)
+                pass
         yield
     finally:
-        # Restore original SIGABRT handler
-        if original_handler is not None:
-            signal.signal(signal.SIGABRT, original_handler)
+        # Restore original SIGABRT handler only if we installed one
+        if signal_installed:
+            try:
+                signal.signal(signal.SIGABRT, original_handler)
+            except ValueError:
+                # Can't restore signal handler
+                pass
 
 class VoiceProcessor:
     def __init__(self):

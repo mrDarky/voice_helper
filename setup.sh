@@ -34,6 +34,16 @@ else
     echo "               brew install ffmpeg (macOS)"
 fi
 
+# Check for xclip (Linux only, optional but recommended)
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if command -v xclip &> /dev/null; then
+        echo "✓ xclip found"
+    else
+        echo "⚠ xclip not found (optional, but recommended for clipboard support)"
+        echo "  Install with: sudo apt-get install xclip (Ubuntu/Debian)"
+    fi
+fi
+
 # Create virtual environment
 echo ""
 echo "Creating virtual environment..."
