@@ -151,48 +151,50 @@ class VoiceProcessor:
         # Adjust for ambient noise once at the start
         # Note: This adjusts the recognizer's energy_threshold, which persists
         # across all microphone instances, so we only need to do it once
-        try:
-            microphone = sr.Microphone()
-            with microphone as source:
-                self.recognizer.adjust_for_ambient_noise(source, duration=1)
-        except Exception as e:
-            print(f"Error initializing microphone: {e}")
-            self.is_listening = False
-            if self.on_command_received:
-                # Notify that listening failed
-                import kivy.clock
-                kivy.clock.Clock.schedule_once(
-                    lambda dt: print("Listening stopped due to audio error"), 0)
-            return
-        
-        while self.is_listening:
+        with suppress_alsa_errors():
             try:
-                # Create a new microphone instance for each listening iteration
                 microphone = sr.Microphone()
                 with microphone as source:
-                    print("Listening for trigger phrase...")
-                    audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=5)
-                
-                # Use Google Speech Recognition for trigger detection
-                text = self.recognizer.recognize_google(audio).lower()
-                print(f"Heard: {text}")
-                
-                if trigger_phrase in text:
-                    print("Trigger detected!")
-                    if self.on_trigger_detected:
-                        self.on_trigger_detected()
-                    
-                    # Listen for command
-                    self._listen_for_command()
-                    
-            except sr.WaitTimeoutError:
-                continue
-            except sr.UnknownValueError:
-                continue
+                    self.recognizer.adjust_for_ambient_noise(source, duration=1)
             except Exception as e:
-                print(f"Error in listen loop: {e}")
-                # Don't break on transient errors, but add a delay
-                time.sleep(1)
+                print(f"Error initializing microphone: {e}")
+                self.is_listening = False
+                if self.on_command_received:
+                    # Notify that listening failed
+                    import kivy.clock
+                    kivy.clock.Clock.schedule_once(
+                        lambda dt: print("Listening stopped due to audio error"), 0)
+                return
+        
+        while self.is_listening:
+            with suppress_alsa_errors():
+                try:
+                    # Create a new microphone instance for each listening iteration
+                    microphone = sr.Microphone()
+                    with microphone as source:
+                        print("Listening for trigger phrase...")
+                        audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=5)
+                
+                    # Use Google Speech Recognition for trigger detection
+                    text = self.recognizer.recognize_google(audio).lower()
+                    print(f"Heard: {text}")
+                    
+                    if trigger_phrase in text:
+                        print("Trigger detected!")
+                        if self.on_trigger_detected:
+                            self.on_trigger_detected()
+                        
+                        # Listen for command
+                        self._listen_for_command()
+                        
+                except sr.WaitTimeoutError:
+                    continue
+                except sr.UnknownValueError:
+                    continue
+                except Exception as e:
+                    print(f"Error in listen loop: {e}")
+                    # Don't break on transient errors, but add a delay
+                    time.sleep(1)
     
     def _listen_for_command(self):
         """Listen for actual command after trigger"""
@@ -204,21 +206,22 @@ class VoiceProcessor:
             print("Error: No audio input devices available")
             return
             
-        try:
-            # Create a new microphone instance for command listening
-            microphone = sr.Microphone()
-            with microphone as source:
-                print("Listening for command...")
-                audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=10)
-            
-            text = self.recognizer.recognize_google(audio)
-            print(f"Command: {text}")
-            
-            if self.on_command_received:
-                self.on_command_received(text)
+        with suppress_alsa_errors():
+            try:
+                # Create a new microphone instance for command listening
+                microphone = sr.Microphone()
+                with microphone as source:
+                    print("Listening for command...")
+                    audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=10)
                 
-        except Exception as e:
-            print(f"Error listening for command: {e}")
+                text = self.recognizer.recognize_google(audio)
+                print(f"Command: {text}")
+                
+                if self.on_command_received:
+                    self.on_command_received(text)
+                    
+            except Exception as e:
+                print(f"Error listening for command: {e}")
     
     def listen_once(self):
         """Listen for a single phrase (for translation input)"""
@@ -230,16 +233,17 @@ class VoiceProcessor:
             print("Error: No audio input devices available")
             return None
             
-        try:
-            # Create a new microphone instance for single listening
-            microphone = sr.Microphone()
-            with microphone as source:
-                self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
-                print("Listening...")
-                audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=10)
-            
-            text = self.recognizer.recognize_google(audio)
-            return text
-        except Exception as e:
-            print(f"Error in listen_once: {e}")
-            return None
+        with suppress_alsa_errors():
+            try:
+                # Create a new microphone instance for single listening
+                microphone = sr.Microphone()
+                with microphone as source:
+                    self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                    print("Listening...")
+                    audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=10)
+                
+                text = self.recognizer.recognize_google(audio)
+                return text
+            except Exception as e:
+                print(f"Error in listen_once: {e}")
+                return None
